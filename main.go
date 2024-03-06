@@ -42,57 +42,92 @@ func action(n1, n2 int, operation string) int {
 
 // Преобразует римскую цифру в арабскую
 func romanToArabic(roman string) int {
-	romanNumerals := map[string]int{
-		"I":    1,
-		"II":   2,
-		"III":  3,
-		"IV":   4,
-		"V":    5,
-		"VI":   6,
-		"VII":  7,
-		"VIII": 8,
-		"IX":   9,
-		"X":    10,
+	allRoman := map[int]string{
+		1000: "M",
+		900:  "CM",
+		500:  "D",
+		400:  "CD",
+		100:  "C",
+		90:   "XC",
+		50:   "L",
+		40:   "XL",
+		10:   "X",
+		9:    "IX",
+		5:    "V",
+		4:    "IV",
+		1:    "I",
 	}
 
-	return romanNumerals[roman]
+	dec := 0
+
+	for i, r := range allRoman {
+		for strings.HasPrefix(roman, r) {
+			dec += i
+			roman = roman[len(r):]
+		}
+	}
+
+	return dec
 }
 
 // Преобразует арабскую цифру в римскую
 func arabicToRoman(arabic int) string {
-	arabicNumerals := map[int]string{
-		1:  "I",
-		2:  "II",
-		3:  "III",
-		4:  "IV",
-		5:  "V",
-		6:  "VI",
-		7:  "VII",
-		8:  "VIII",
-		9:  "IX",
-		10: "X",
-		11: "XI",
-		12: "XII",
-		13: "XIII",
-		14: "XIV",
-		15: "XV",
-		16: "XVI",
-		17: "XVII",
-		18: "XVIII",
-		19: "XIX",
-		20: "XX",
+	allRoman := []struct {
+		i int
+		r string
+	}{
+		{1000, "M"},
+		{900, "CM"},
+		{500, "D"},
+		{400, "CD"},
+		{100, "C"},
+		{90, "XC"},
+		{50, "L"},
+		{40, "XL"},
+		{10, "X"},
+		{9, "IX"},
+		{5, "V"},
+		{4, "IV"},
+		{1, "I"},
 	}
+
 	if arabic <= 0 {
 		panic("Римское число не может быть нулем или отрицательным")
 	}
-	return arabicNumerals[arabic]
+
+	roman := ""
+
+	for arabic > 0 {
+		for _, r := range allRoman {
+			for arabic >= r.i {
+				roman += r.r
+				arabic -= r.i
+			}
+		}
+	}
+
+	return roman
+}
+
+// Проверяет входит ли число в римскую систему счисления
+func isRoman(roman string) bool {
+	romanNums := []string{
+		"I", "V", "X", "L", "C", "D", "M",
+	}
+
+	splitString := strings.Split(roman, ``)
+
+	for i := 0; i < len(splitString); i++ {
+		if !contains(romanNums, splitString[i]) {
+			return false
+		}
+	}
+
+	return true
+
 }
 
 func main() {
-
-	romanNums := []string{
-		"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
-	}
 
 	arabicNums := []string{
 		"1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
@@ -122,7 +157,7 @@ func main() {
 		result := action(firstNum, secondNum, operation)
 		fmt.Println(result)
 
-	} else if contains(romanNums, firstNumStr) && contains(romanNums, secondNumStr) {
+	} else if isRoman(firstNumStr) && isRoman(secondNumStr) {
 
 		firstNum := romanToArabic(firstNumStr)
 		secondNum := romanToArabic(secondNumStr) // Преобразование строки в число
